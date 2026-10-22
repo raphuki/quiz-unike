@@ -1,4 +1,4 @@
-const CACHE = "quiz-unike-598753760c";
+const CACHE = "quiz-unike-d8c3b67ebe";
 const FILES = [
  "./",
  "index.html",
