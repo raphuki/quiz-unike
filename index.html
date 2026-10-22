@@ -106,10 +106,13 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.
 .q-stats .empty{color:var(--muted);font-size:1rem}
 /* Quando a tela rola (celular em pé), o quadro de ganhos fica fixo embaixo e acompanha a rolagem */
 #question.scroll{padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
-#question.scroll .q-stats{position:fixed;z-index:5;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px;padding:12px 18px;box-shadow:inset 0 0 0 2px var(--line),0 14px 34px rgba(0,0,0,.55)}
+#question.scroll .q-stats{position:fixed;z-index:5;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 32px));bottom:calc(12px + env(safe-area-inset-bottom,0px));flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px;padding:12px 18px;box-shadow:inset 0 0 0 2px var(--line),0 14px 34px rgba(0,0,0,.55)}
 #question.scroll .q-stats.on{box-shadow:inset 0 0 0 2px var(--gold),0 14px 34px rgba(0,0,0,.55)}
 #question.scroll .q-stats .who{flex-basis:100%}
-#question.scroll .q-stats .m{font-size:1.5rem}
+#question.scroll .q-stats .m{font-size:2rem}
+#question.scroll .q-stats .g{font-size:1.2rem}
+#question.scroll .q-stats{justify-content:center;text-align:center;gap:4px 20px}
+#question.scroll .q-stats .who{text-align:center}
 .q-head h2{font-size:clamp(1.4rem,3.4vw,2.4rem);line-height:1.12;max-width:26ch}
 .hint{color:var(--muted);font-size:1rem;margin:0}
 .grid{--gap:clamp(10px,1.8vw,20px);flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap);align-content:center;width:100%;margin:0 auto}
@@ -274,6 +277,23 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.
 /* ---------- Pergunta 1: todos ganham ---------- */
 .grid.six{grid-template-columns:repeat(6,minmax(0,1fr))}
 @media (max-aspect-ratio:1/1){.grid.six{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* iPad em pé: os 4 cards da pergunta 3 numa linha só, para caber tudo sem rolar */
+@media (max-aspect-ratio:1/1) and (min-width:700px){
+  .grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  /* tudo centralizado: título, cards, ganhos e respostas em sequência no meio da tela */
+  #question.tempoq{justify-content:center}
+  #question.tempoq .topbar{position:absolute;top:20px;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px))}
+  #question.tempoq .q-row{display:contents}
+  #question.tempoq .q-head{order:1;align-items:center;text-align:center;flex:none}
+  #question.tempoq .q-head h2{max-width:22ch}
+  #question.tempoq .grid{order:2;flex:none}
+  #question.tempoq .q-stats{order:3;align-self:center;align-items:center;text-align:center;min-width:min(460px,100%);padding:16px 32px}
+  #question.tempoq .q-stats .who{font-size:.95rem}
+  #question.tempoq .q-stats .g{font-size:1.45rem}
+  #question.tempoq .q-stats .m{font-size:2.8rem}
+  #question.tempoq .q-stats .empty{font-size:1.1rem}
+  #question.tempoq .answers{order:4}
+}
 .q-head h2 u{text-decoration-color:var(--live);text-decoration-thickness:.12em;text-underline-offset:.12em}
 .card.flip{animation:flipcard .6s ease both;animation-delay:var(--d);box-shadow:inset 0 0 0 3px var(--gold)}
 .card.flip .tag{background:var(--gold);color:#2B1D00;animation:tagin .4s ease both;animation-delay:calc(var(--d) + .3s)}
@@ -684,11 +704,12 @@ function renderQuestion(){
   $("#qTitle").innerHTML = q.titulo.replace("NÃO", "<u>NÃO</u>");
   renderDots();
   $("#grid").hidden = !q.pessoas;
-  $("#grid").className = "grid" + (q.pessoas && q.pessoas.length === 6 ? " six" : "") + (q.pessoas ? "" : " none");
+  $("#grid").className = "grid" + (q.pessoas && q.pessoas.length === 6 ? " six" : "") + (q.pessoas && q.pessoas.length === 4 ? " four" : "") + (q.pessoas ? "" : " none");
   renderGrid();
   renderAnswers();
   renderStats(null);
   $("#question").classList.toggle("bensq", q.tipo === "beneficios");
+  $("#question").classList.toggle("tempoq", q.tipo === "tempo");
   show("question");
   fitGrid();
   toTop("question");
