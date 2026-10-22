@@ -36,5 +36,16 @@ self.addEventListener("install", e => { self.skipWaiting(); e.waitUntil(caches.o
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  /* página: tenta a versão nova (até 3 s); sem internet usa a guardada */
+  if (e.request.mode === "navigate") {
+    e.respondWith((async () => {
+      try {
+        const r = await Promise.race([fetch(e.request, { cache: "no-store" }), new Promise((_, rej) => setTimeout(rej, 3000))]);
+        if (r && r.ok) { const c = await caches.open(CACHE); c.put("index.html", r.clone()); c.put("./", r.clone()); return r; }
+        throw 0;
+      } catch(_) { return (await caches.match("index.html")) || (await caches.match("./")); }
+    })());
+    return;
+  }
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(r => r || fetch(e.request).catch(() => caches.match("index.html"))));
 });
