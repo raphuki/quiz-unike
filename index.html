@@ -728,12 +728,14 @@ function fitText(){
 }
 
 /* Frase final da pergunta 2: 1º lugar = 3 pontos, 2º = 2, 3º = 1.
-   A categoria com mais pontos decide a frase; no empate, vale a categoria do 1º lugar. */
+   A categoria com mais pontos decide a frase; no empate, vence a que teve mais itens escolhidos. */
 function fraseBens(q, total){
   const pts = {};
-  st.bens.forEach((i,pos)=>{ const c = q.itens[i].cat; pts[c] = (pts[c]||0) + (3-pos); });
+  const qtd = {};
+  st.bens.forEach((i,pos)=>{ const c = q.itens[i].cat; pts[c] = (pts[c]||0) + (3-pos); qtd[c] = (qtd[c]||0) + 1; });
   const prim = st.bens.length ? q.itens[st.bens[0]].cat : "premios";
-  const cat = Object.keys(pts).sort((a,b)=> pts[b]-pts[a] || (b===prim) - (a===prim))[0] || prim;
+  /* empate nos pontos: vence a categoria com mais itens escolhidos; persistindo, a do 1º lugar */
+  const cat = Object.keys(pts).sort((a,b)=> pts[b]-pts[a] || qtd[b]-qtd[a] || (b===prim) - (a===prim))[0] || prim;
   if (cat === "eventos") return "A Unike está em <b>todos os eventos, encontros e premiações do TikTok!</b>";
   if (cat === "suporte") return "Na Unike, você <b>nunca está sozinho</b>: tem uma equipe inteira trabalhando para você crescer.";
   return `Só em bônus e prêmios, a Unike paga <b>${mil(total)} por mês</b> aos creators.`;
